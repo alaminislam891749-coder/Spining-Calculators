@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>টেক্সটাইল ক্যালকুলেটর</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f7f9fc;
+            font-family: Arial, sans-serif;
+            color: #202124;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            max-height: 820px;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px 15px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .menu-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+            height: 100%;
+        }
+        .menu-btn {
+            background-color: #1a73e8;
+            color: white;
+            padding: 22px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .menu-btn:active {
+            background-color: #1557b0;
+        }
+
+        .calc-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+            padding-bottom: 5px;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+        .back-menu-btn {
+            background: #e8eaed;
+            color: #3c4043;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .calc-title {
+            font-size: 16px;
+            color: #1a73e8;
+            font-weight: bold;
+        }
+        
+        .display-box {
+            background-color: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+            text-align: right;
+            flex-grow: 1;
+        }
+        .input-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .count-badge {
+            font-size: 13px;
+            color: #5f6368;
+            background: #e8eaed;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        
+        /* সংখ্যা ভাঙা রোধ করার চূড়ান্ত নিয়ম */
+        .input-view {
+            font-size: 26px;
+            color: #202124;
+            text-align: right;
+            font-weight: 400;
+            word-break: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.2;
+        }
+        .output-view {
+            font-size: 28px;
+            color: #137333;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.1;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .btn {
+            background-color: #f1f3f4;
+            color: #202124;
+            font-size: 24px;
+            border: none;
+            border-radius: 50%;
+            width: 72px;
+            height: 72px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            margin: auto;
+            font-weight: 500;
+        }
+        .btn:active {
+            background-color: #e2e4e7;
+        }
+        .btn-ac {
+            background-color: #fce8e6;
+            color: #c5221f;
+        }
+        .btn-op {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+        }
+        .btn-del {
+            background-color: #f1f3f4;
+            color: #5f6368;
+            font-size: 20px;
+        }
+        .btn-green-eq {
+            background-color: #137333;
+            color: #ffffff;
+        }
+        .btn-green-eq:active {
+            background-color: #0d5023;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- হোম মেনু -->
+    <div class="menu-screen" id="homeMenu">
+        <h2 style="text-align:center; color:#1a73e8; margin-bottom:20px; font-size: 22px;">টেক্সটাইল ক্যালকুলেটর</h2>
+        <button class="menu-btn" onclick="selectMode(1)">১. Carding Calculation</button>
+        <button class="menu-btn" onclick="selectMode(2)">২. Breaker Draw Frame</button>
+        <button class="menu-btn" onclick="selectMode(3)">৩. Finisher Draw Frame</button>
+        <button class="menu-btn" onclick="selectMode(4)">৪. Counter Test & CV%</button>
+    </div>
+
+    <!-- ক্যালকুলেটর ইন্টারফেস -->
+    <div class="calc-screen" id="calculatorInterface">
+        <div class="top-bar">
+            <button class="back-menu-btn" onclick="goHome()">← মেনু</button>
+            <span class="calc-title" id="modeTitle">Title</span>
+        </div>
+        
+        <div class="display-box">
+            <div class="input-header">
+                <span class="count-badge" id="countBadge">মোট: ০টি</span>
+                <div style="font-size: 13px; color: #70757a;">ইনপুট</div>
+            </div>
+            <div class="input-view" id="inputText">0</div>
+            <div class="output-view" id="outputText">0</div>
+        </div>
+
+        <div class="keypad">
+            <button class="btn btn-ac" onclick="clearAll()">AC</button>
+            <button class="btn btn-op" onclick="appendValue('+')">(</button>
+            <button class="btn btn-op" onclick="appendValue('+')">)</button>
+            <button class="btn btn-op" onclick="appendValue('/')">÷</button>
+
+            <button class="btn" onclick="appendValue('7')">7</button>
+            <button class="btn" onclick="appendValue('8')">8</button>
+            <button class="btn" onclick="appendValue('9')">9</button>
+            <button class="btn btn-op" onclick="appendValue('*')">×</button>
+
+            <button class="btn" onclick="appendValue('4')">4</button>
+            <button class="btn" onclick="appendValue('5')">5</button>
+            <button class="btn" onclick="appendValue('6')">6</button>
+            <button class="btn btn-op" onclick="appendValue('-')">-</button>
+
+            <button class="btn" onclick="appendValue('1')">1</button>
+            <button class="btn" onclick="appendValue('2')">2</button>
+            <button class="btn" onclick="appendValue('3')">3</button>
+            <button class="btn btn-op" onclick="appendValue('+')">+</button>
+
+            <button class="btn" onclick="appendValue('0')">0</button>
+            <button class="btn" onclick="appendValue('.')">.</button>
+            <button class="btn btn-del" onclick="backspace()">⌫</button>
+            <button class="btn btn-green-eq" onclick="appendValue('+')">+</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentMode = 1;
+    let inputString = "";
+
+    function selectMode(mode) {
+        currentMode = mode;
+        document.getElementById('homeMenu').style.display = 'none';
+        document.getElementById('calculatorInterface').style.display = 'flex';
+        clearAll();
+
+        const titles = {
+            1: 'Carding Calculation',
+            2: 'Breaker Draw Frame',
+            3: 'Finisher Draw Frame',
+            4: 'Counter Test & CV%'
+        };
+        document.getElementById('modeTitle').innerText = titles[mode];
+    }
+
+    function goHome() {
+        document.getElementById('calculatorInterface').style.display = 'none';
+        document.getElementById('homeMenu').style.display = 'flex';
+    }
+
+    function appendValue(val) {
+        if(inputString === "0" && val !== '.') {
+            inputString = val;
+        } else {
+            inputString += val;
+        }
+        updateDisplay();
+    }
+
+    function clearAll() {
+        inputString = "";
+        document.getElementById('inputText').innerText = "0";
+        document.getElementById('outputText').innerText = "0";
+        document.getElementById('countBadge').innerText = "মোট: ০টি";
+    }
+
+    function backspace() {
+        inputString = inputString.slice(0, -1);
+        if(inputString === "") {
+            document.getElementById('inputText').innerText = "0";
+            document.getElementById('outputText').innerText = "0";
+            document.getElementById('countBadge').innerText = "মোট: ০টি";
+        } else {
+            updateDisplay();
+        }
+    }
+
+    function parseInput(str) {
+        return str.split('+').map(Number).filter(n => !isNaN(n) && n > 0);
+    }
+
+    function getAverage(arr) {
+        if (arr.length === 0) return 0;
+        let sum = arr.reduce((a, b) => a + b, 0);
+        return sum / arr.length;
+    }
+
+    function getCV(arr, mean) {
+        if (arr.length <= 1 || mean === 0) return 0;
+        let variance = arr.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / (arr.length - 1);
+        let stdDev = Math.sqrt(variance);
+        return (stdDev / mean) * 100;
+    }
+
+    function updateDisplay() {
+        if (!inputString) {
+            document.getElementById('inputText').innerText = "0";
+            document.getElementById('outputText').innerText = "0";
+            document.getElementById('countBadge').innerText = "মোট: ০টি";
+            return;
+        }
+
+        document.getElementById('inputText').innerText = inputString;
+
+        let arr = parseInput(inputString);
+        document.getElementById('countBadge').innerText = `মোট: ${arr.length}টি`;
+
+        if (arr.length === 0) {
+            document.getElementById('outputText').innerText = "---";
+            return;
+        }
+
+        let avg = getAverage(arr);
+        let finalAns = "";
+
+        if (currentMode === 1 || currentMode === 2) {
+            let result = avg * 2.572;
+            finalAns = result.toFixed(4);
+        } 
+        else if (currentMode === 3) {
+            let mulVal = avg * 2.572;
+            let cvVal = getCV(arr, avg);
+            finalAns = `${mulVal.toFixed(4)} (CV: ${cvVal.toFixed(2)}%)`;
+        } 
+        else if (currentMode === 4) {
+            let cvVal = getCV(arr, avg);
+            finalAns = `${avg.toFixed(4)} (CV: ${cvVal.toFixed(2)}%)`;
+        }
+
+        document.getElementById('outputText').innerText = finalAns;
+    }
+</script>
+
+</body>
+</html>
